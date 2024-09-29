@@ -1,4 +1,4 @@
-name: Periodic Job
+name: Periodic Ubi Job
 
 on:
   workflow_dispatch:
@@ -7,7 +7,7 @@ jobs:
   ruby-ci:
     strategy:
       matrix:
-        runs-on: [ubicloud]
+        runs-on: [ubicloud, ubuntu-latest]
     name: CI ${{matrix.runs-on}}
     runs-on: ${{matrix.runs-on}}
     continue-on-error: true
@@ -74,11 +74,11 @@ jobs:
 
       - name: Restore cached Primes
         id: cache-config
-        uses: actions/cache@v4
+        uses: ubicloud/cache@v4
         with:
           path: |
             myfolder
-          key: ${{ runner.os }}-myfolder-configas18-${{ github.run_id }}.json
+          key: ${{ runner.os }}-myfolder-configas20-${{ github.run_id }}.json
           
       - name: Generate configas7.json if not cached
         if: steps.cache-config.outputs.cache-hit != 'true'
