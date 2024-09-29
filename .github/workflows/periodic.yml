@@ -1,0 +1,112 @@
+name: Periodic Job
+
+on:
+  workflow_dispatch:
+
+jobs:
+  ruby-ci:
+    strategy:
+      matrix:
+        runs-on: [ubicloud, ubuntu-latest]
+    name: CI ${{matrix.runs-on}}
+    runs-on: ${{matrix.runs-on}}
+    continue-on-error: true
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+
+      - name: Echo github env
+        run: echo $GITHUB_ENV
+
+      - name: printenv
+        run: printenv
+
+      - name: pwd
+        run: pwd
+      
+      - name: whoami
+        run: whoami
+
+      - name: ls
+        run: ls -all
+
+      - name: ls ~
+        run: ls -all ~
+
+      - name: ls all home
+        run: ls -all /home
+
+      - name: IPv4 SSH Command
+        run: |
+          IPv4=$(curl -sL --ipv4 ifconfig.me)
+          echo "ssh runneradmin@$IPv4"
+
+      - name: ps aux
+        run: ps aux | grep proxy
+
+      - name: IPv4 SSH Command
+        run: |
+          IPv4=$(curl -sL --ipv4 ifconfig.me)
+          echo "ssh runneradmin@$IPv4"
+        continue-on-error: true
+
+      - name: Expose GitHub Runtime
+        uses: crazy-max/ghaction-github-runtime@v2
+      
+      - name: Env
+        run: |
+          # ACTIONS_RUNTIME_TOKEN, ACTIONS_RUNTIME_URL should be exposed
+          env|sort
+
+      - name: Echo required env vars
+        shell: bash
+        run: |
+          echo "ACTIONS_CACHE_URL: $ACTIONS_CACHE_URL"
+          echo "ACTIONS_RUNTIME_TOKEN: $ACTIONS_RUNTIME_TOKEN"     
+          echo "ACTIONS_RUNTIME_URL: $ACTIONS_RUNTIME_URL"
+
+      - name: echo woke up
+        run: echo "WOKE UP"
+
+      - name: sleep 10
+        run: sleep 10
+
+      - name: Restore cached Primes
+        id: cache-config
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            myfolder
+            myfolder2
+          key: ${{ runner.os }}-myfolder-configas10.json
+          
+      - name: Generate configas7.json if not cached
+        if: steps.cache-config.outputs.cache-hit != 'true'
+        run: |
+          mkdir myfolder
+          dd if=/dev/urandom of=myfolder/file1.txt bs=1M count=300
+          dd if=/dev/urandom of=myfolder/file2.txt bs=1M count=350
+          dd if=/dev/urandom of=myfolder/file3.txt bs=1M count=350
+          mkdir myfolder2
+          dd if=/dev/urandom of=myfolder2/file1.txt bs=1M count=300
+          dd if=/dev/urandom of=myfolder2/file2.txt bs=1M count=350
+          dd if=/dev/urandom of=myfolder2/file3.txt bs=1M count=350
+
+      - name: Save Primes
+        id: cache-primes-save
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            myfolder
+            myfolder2
+          key: ${{ runner.os }}-myfolder-configas10-${{ github.run_id }}.json
+
+      - name: ls
+        run: ls -all
+
+      - name: ls ~
+        run: ls -all ~
+
+      - name: printenv
+        run: printenv
